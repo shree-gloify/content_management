@@ -5,15 +5,135 @@
     "version": "v1"
   },
   "paths": {
-    "/api/v1/users": {
+    // Login Endpoints
+    "/auth": {
       "post": {
-        "summary": "Creates a user",
+        "summary": "login",
         "tags": [
-          "Users"
+          "sign up"
         ],
-        "consumes": [
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "path",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "password_confirmation",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Signed Up"
+          },
+          "422": {
+            "description": "Invalid Credentials"
+          }
+        }
+      }
+    },
+
+    "/auth/sign_in": {
+      "post": {
+        "summary": "login",
+        "tags": [
+          "login"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "password",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successfully Logged in"
+          },
+          "422": {
+            "description": "Invalid Credentials"
+          }
+        }
+      }
+    },
+    "/auth/sign_out": {
+      "delete": {
+        "summary": "sign out, please use header (client, access_token, uid, content_type)",
+        "tags": [
+          "sign out"
+        ],
+        "produces": [
           "application/json",
           "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "client",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "access_token",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "uid",
+            "in": "header",
+            "type": "string",
+            "required": true
+          },
+          {
+            "name": "content_type",
+            "in": "header",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Signed out successfully"
+          },
+          "422": {
+            "description": "invalid request"
+          }
+        }
+      }
+    },
+    // Passwords Endpoints
+    "/auth/password": {
+      "patch": {
+        "summary": "create new password from reset link",
+        "tags": [
+          "passwords"
+        ],
+        "produces": [
+          "application/json"
         ],
         "parameters": [
           {
@@ -28,20 +148,24 @@
                 "password": {
                   "type": "string"
                 },
-                "confirmation_password": {
+                "password_confirmation": {
+                  "type": "string"
+                },
+                "reset_password_token": {
                   "type": "string"
                 }
               },
               "required": [
-                "name",
-                "status"
+                "email",
+                "password_confirmation",
+                "password"
               ]
             }
           }
         ],
         "responses": {
-          "201": {
-            "description": "user created"
+          "200": {
+            "description": "organization created"
           },
           "422": {
             "description": "invalid request"
@@ -49,11 +173,11 @@
         }
       }
     },
-    "/api/v1/users/{id}": {
+    "/auth/password/edit": {
       "get": {
-        "summary": "Retrieves a user",
+        "summary": "to verify if reset password link is valid",
         "tags": [
-          "Users"
+          "passwords"
         ],
         "produces": [
           "application/json",
@@ -61,7 +185,7 @@
         ],
         "parameters": [
           {
-            "name": "id",
+            "name": "reset_password_token",
             "in": "path",
             "type": "string",
             "required": true
@@ -69,35 +193,69 @@
         ],
         "responses": {
           "200": {
-            "description": "name found",
-            "schema": {
-              "type": "object",
-              "properties": {
-                "id": {
-                  "type": "integer"
-                },
-                "name": {
-                  "type": "string"
-                },
-                "photo_url": {
-                  "type": "string"
-                },
-                "status": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "id",
-                "name",
-                "status"
-              ]
-            }
+            "description": "valid url"
           },
-          "404": {
-            "description": "user not found"
+          "422": {
+            "description": "invalid request"
           }
         }
       }
-    }
+    },
+    "/auth/password": {
+      "post": {
+        "summary": "send password reset link",
+        "tags": [
+          "passwords"
+        ],
+        "produces": [
+          "application/json",
+          "application/xml"
+        ],
+        "parameters": [
+          {
+            "name": "email",
+            "in": "path",
+            "type": "string",
+            "required": true
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "sent password reset link"
+          },
+          "422": {
+            "description": "invalid request"
+          }
+        }
+      }
+    },
+    // "/auth/password": {
+    //   "post": {
+    //     "summary": "to reset password",
+    //     "tags": [
+    //       "passwords"
+    //     ],
+    //     "produces": [
+    //       "application/json",
+    //       "application/xml"
+    //     ],
+    //     "parameters": [
+    //       {
+    //         "name": "email",
+    //         "in": "path",
+    //         "type": "string",
+    //         "required": true
+    //       }
+    //     ],
+    //     "responses": {
+    //       "200": {
+    //         "description": "password reset"
+    //       },
+    //       "422": {
+    //         "description": "invalid request"
+    //       }
+    //     }
+    //   }
+    // }
   }
 }
