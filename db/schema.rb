@@ -10,10 +10,70 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_04_11_063057) do
+ActiveRecord::Schema.define(version: 2019_07_11_083803) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
+
+  create_table "pg_search_documents", force: :cascade do |t|
+    t.text "content"
+    t.string "searchable_type"
+    t.bigint "searchable_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["searchable_type", "searchable_id"], name: "index_pg_search_documents_on_searchable_type_and_searchable_id"
+  end
+
+  create_table "project_languages", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.string "language", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id"], name: "index_project_languages_on_project_id"
+  end
+
+  create_table "project_members", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "user_id", null: false
+    t.string "role", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "user_id"], name: "index_project_members_on_project_id_and_user_id", unique: true
+    t.index ["project_id"], name: "index_project_members_on_project_id"
+    t.index ["user_id"], name: "index_project_members_on_user_id"
+  end
+
+  create_table "projects", force: :cascade do |t|
+    t.bigint "user_id", null: false
+    t.string "project_name", null: false
+    t.text "project_description"
+    t.string "slug", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_projects_on_user_id"
+  end
+
+  create_table "release_comments", force: :cascade do |t|
+    t.bigint "release_note_id", null: false
+    t.bigint "user_id", null: false
+    t.text "description", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["release_note_id"], name: "index_release_comments_on_release_note_id"
+    t.index ["user_id"], name: "index_release_comments_on_user_id"
+  end
+
+  create_table "release_notes", force: :cascade do |t|
+    t.bigint "project_id", null: false
+    t.bigint "user_id", null: false
+    t.text "release_description", null: false
+    t.float "release_number", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["project_id", "release_number"], name: "index_release_notes_on_project_id_and_release_number", unique: true
+    t.index ["project_id"], name: "index_release_notes_on_project_id"
+    t.index ["user_id"], name: "index_release_notes_on_user_id"
+  end
 
   create_table "users", force: :cascade do |t|
     t.string "provider", default: "email", null: false
@@ -42,4 +102,12 @@ ActiveRecord::Schema.define(version: 2019_04_11_063057) do
     t.index ["uid", "provider"], name: "index_users_on_uid_and_provider", unique: true
   end
 
+  add_foreign_key "project_languages", "projects"
+  add_foreign_key "project_members", "projects"
+  add_foreign_key "project_members", "users"
+  add_foreign_key "projects", "users"
+  add_foreign_key "release_comments", "release_notes"
+  add_foreign_key "release_comments", "users"
+  add_foreign_key "release_notes", "projects"
+  add_foreign_key "release_notes", "users"
 end

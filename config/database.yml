@@ -8,13 +8,13 @@ default: &default
 
 development:
   <<: *default
-  database: sample_dev
+  database: content_management_dev
   username: shree
   password: 
   
 test:
   <<: *default
-  database: viksheet
+  database: 
 
 production:
   <<: *default
